@@ -29,7 +29,11 @@ for file in $EXTRACTION_FOLDER/*.csv; do
 	tail -n +2 $file >> $BBPATH
 done;
 
+sed -i 's/\(.*\)\([A-Z]\)\(.*\)/Thesis-Code\/experiments\/experiment 2\/\1\2\3,\2/g' $EXTRACTION_FOLDER/bboxes.csv
+
 echo "Extraction ended..."
 echo "Image stats"
-file $EXTRACTION_FOLDER/*.jpg | cut -d "," -f8 | uniq -c
+file $EXTRACTION_FOLDER/*.jpg | cut -d "," -f8 | sort | uniq -c
+echo "Classes stats: "
+cut -d "," -f6 $EXTRACTION_FOLDER/bboxes.csv | sort | uniq -c | column -n
 
