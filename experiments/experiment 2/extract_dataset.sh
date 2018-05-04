@@ -9,6 +9,7 @@ fi
 
 DATA_EXTRACTION_NO=$1
 EXTRACTION_FOLDER="dataset_$DATA_EXTRACTION_NO"
+AUG_FOLDER="aug_$EXTRACTION_FOLDER"
 mkdir $EXTRACTION_FOLDER
 
 for dir in `ls dataset`; do
@@ -32,9 +33,15 @@ done;
 sed -i "s/\(.*\)\([A-Z]\)\(.*\)/\1\2\3,\2/g" $EXTRACTION_FOLDER/bboxes.csv
 
 cp class_to_id.csv $EXTRACTION_FOLDER
+rm $EXTRACTION_FOLDER/user*.csv
 echo "Extraction ended..."
 echo "Image stats"
 file $EXTRACTION_FOLDER/*.jpg | cut -d "," -f8 | sort | uniq -c
 echo "Classes stats: "
 cut -d "," -f6 $EXTRACTION_FOLDER/bboxes.csv | sort | uniq -c | column -n
 
+echo "Begin augmentation..."
+python augment_dataset.py $EXTRACTION_FOLDER
+mkdir $AUG_FOLDER
+mv $EXTRACTION_FOLDER/aug* $AUG_FOLDER/
+echo "Finished augmentation..."

@@ -39,7 +39,6 @@ def process_line(DATASET_DIR,line):
 
     elems = line.split(",")
     fname = elems[0]
-    print(line)
     box = np.array([elems[1],elems[2],elems[3],elems[4]]).astype(int)
     label = elems[5]
 
