@@ -44,4 +44,5 @@ echo "Begin augmentation..."
 python augment_dataset.py $EXTRACTION_FOLDER
 mkdir $AUG_FOLDER
 mv $EXTRACTION_FOLDER/aug* $AUG_FOLDER/
+mv $AUG_FOLDER/aug_bboxes.csv $AUG_FOLDER/bboxes.csv
 echo "Finished augmentation..."

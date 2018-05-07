@@ -3,8 +3,9 @@ import numpy as np
 import argparse
 import os
 
+
 from scipy import ndimage,misc
-from skimage import io,exposure
+from skimage import io,exposure,util
 from random import random,randint
 
 def horizontal_flip(image):
@@ -33,6 +34,8 @@ def process_line(DATASET_DIR,line):
     ADJUST_GAMMA = 0.3
     BLUR = 0.3
     SHARPEN = 0.2
+    RESCALE_INTENSITY = 0.1
+    NOISE = 0.1
 
     if line[5] == '':
         return line
@@ -62,14 +65,24 @@ def process_line(DATASET_DIR,line):
         image = ndimage.uniform_filter(image, size=(FILTER_H,FILTER_W,1))
     if SHARPEN > random():
         image = misc.imfilter(image,'sharpen')
+    if RESCALE_INTENSITY > random():
+        v_min, v_max = np.percentile(image, (0.2, 99.8))
+        image = exposure.rescale_intensity(image,in_range=(v_min,v_max))
+    if NOISE > random():
+        image = util.random_noise(image)
 
     aug_fname = 'aug_' + fname
     io.imsave(os.path.join(DATASET_DIR, aug_fname),image)
     return (aug_fname,box,label)
 
 def render_line(fname,box,label):
-    return fname + ',' + str(box[0]) + \
-            str(box[1]) + str(box[2]) + str(box[3]) + label
+    if box[0] > box[2]:
+        box[0],box[2] = box[2],box[0]
+    if box[1] > box[3]:
+        box[1],box[3] = box[3],box[1]
+    return fname + ',' + str(box[0]) + "," + \
+            str(box[1]) + "," + str(box[2]) + \
+            "," + str(box[3]) + "," + label
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Augmenter per image')
@@ -88,4 +101,4 @@ if __name__ == '__main__':
 
     with open(AUG_BOXES_PATH,'w') as f:
         for line in aug_boxes:
-            f.write(line + '\n')
+            f.write(line)
