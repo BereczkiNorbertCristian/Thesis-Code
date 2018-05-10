@@ -51,10 +51,10 @@ def process_line(DATASET_DIR,line):
 
     if VERTICAL_THRESHOLD > random():
         image = vertical_flip(image)
-        box = recompute_box(h,w,box,0)
+        box = recompute_box(h,w,box,1)
     if HORIZONTAL_THRESHOLD > random():
         image = horizontal_flip(image)
-        box = recompute_box(h,w,box,1)
+        box = recompute_box(h,w,box,0)
     if ADJUST_GAMMA > random():
         GAMMA_RATE = 0.6 - randint(0,4) / 10
         GAIN_RATE = 0.9 - randint(0,4) / 10
