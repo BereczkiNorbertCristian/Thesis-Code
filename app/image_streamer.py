@@ -15,7 +15,7 @@ class ImageStreamer:
         if self.vid.isOpened():
             ret, frame = self.vid.read()
             if ret:
-                return (ret, cv2.flip(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), 1))
+                return (ret, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             else:
                 return (ret, Nonde)
         else:

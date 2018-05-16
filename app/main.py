@@ -5,13 +5,35 @@ import cv2
 import PIL.Image
 import PIL.ImageTk
 import time
+import keras
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+
+
+# import keras_retinanet
+from keras_retinanet import models
+from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
+from keras_retinanet.utils.visualization import draw_box, draw_caption
+from keras_retinanet.utils.colors import label_color
 
 from tkinter import font as tfont
 from image_streamer import ImageStreamer
 
+
+def get_session():
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    return tf.Session(config=config)
+
+keras.backend.tensorflow_backend.set_session(get_session())
+
+
 class App:
 
     def __init__(self, root, title, video_source=0):
+
+        self.init_retinanet()
 
         default_font = tfont.Font(family='Times New Roman', size=12)
 
@@ -50,13 +72,54 @@ class App:
 
         root.mainloop()
 
+    def init_retinanet(self):
+        self.model = models.load_model(
+            'models/retinanet_mobile128_sign.h5', backbone_name='mobilenet128')
+        self.labels_to_names = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'K', 10: 'L',
+                                11: 'M', 12: 'N', 13: 'O', 14: 'P', 15: 'Q', 16: 'R', 17: 'S', 18: 'T', 19: 'U', 20: 'V', 21: 'W', 22: 'X', 23: 'Y'}
+
+    def run_detection(self, image):
+        draw = image
+
+        # preprocess image for network
+        image = preprocess_image(image)
+        image, scale = resize_image(image)
+
+        # process image
+        start = time.time()
+        boxes, scores, labels = self.model.predict_on_batch(
+            np.expand_dims(image, axis=0))
+        print("processing time: ", time.time() - start)
+
+        # correct for image scale
+        boxes /= scale
+
+        # visualize detections
+        itr = 1
+        for box, score, label in zip(boxes[0], scores[0], labels[0]):
+            # scores are sorted so we can break
+            if itr > 1:
+                break
+            itr += 1
+
+            color = label_color(label)
+
+            b = box.astype(int)
+            draw_box(draw, b, color=color)
+
+            caption = "{} {:.3f}".format(self.labels_to_names[label], score)
+            draw_caption(draw, b, caption)
+        return draw
+
     def take_snapshot(self):
         ret, frame = self.vid.get_frame()
 
         if ret:
-            frame = cv2.resize(frame, (self.vid.width, self.vid.height))
+            detection_image = self.run_detection(frame)
+            resized_image = cv2.resize(
+                detection_image, (self.vid.width, self.vid.height))
             self.output_photo = PIL.ImageTk.PhotoImage(
-                image=PIL.Image.fromarray(frame))
+                image=PIL.Image.fromarray(resized_image))
             self.output_canvas.create_image(
                 0, 0, image=self.output_photo, anchor=tk.NW)
             cv2.imwrite("frame-" + time.strftime("%d-%m-%Y-%H-%M-%S") +
