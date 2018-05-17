@@ -61,6 +61,8 @@ class App:
 
         buttons = self.init_buttons(root, default_font)
         self.button_detect_image = buttons[0]
+        self.text_holder = tk.Text(root, width=10, height=10)
+        self.text_holder.grid(row=1, column=0)
 
         self.output_canvas = tk.Canvas(
             root, width=self.vid.width, height=self.vid.height)
@@ -72,9 +74,15 @@ class App:
 
         root.mainloop()
 
+    def getText(self, entry):
+        return entry.get("1.0", tk.END).strip()
+
+    def delete_text(self):
+        self.text_holder.delete("1.0",tk.END)
+
     def init_retinanet(self):
         self.model = models.load_model(
-            'models/retinanet_mobile128_sign.h5', backbone_name='mobilenet128')
+            'models/retinanet_resnet50_sign.h5', backbone_name='resnet50')
         self.labels_to_names = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'K', 10: 'L',
                                 11: 'M', 12: 'N', 13: 'O', 14: 'P', 15: 'Q', 16: 'R', 17: 'S', 18: 'T', 19: 'U', 20: 'V', 21: 'W', 22: 'X', 23: 'Y'}
 
@@ -96,26 +104,30 @@ class App:
 
         # visualize detections
         itr = 1
+        detected_label = None
         for box, score, label in zip(boxes[0], scores[0], labels[0]):
             # scores are sorted so we can break
             if itr > 1:
                 break
             itr += 1
 
+            if label == -1:
+                return draw,-1
             color = label_color(label)
+            detected_label = label
 
             b = box.astype(int)
             draw_box(draw, b, color=color)
 
             caption = "{} {:.3f}".format(self.labels_to_names[label], score)
             draw_caption(draw, b, caption)
-        return draw
+        return draw, detected_label
 
     def take_snapshot(self):
         ret, frame = self.vid.get_frame()
 
         if ret:
-            detection_image = self.run_detection(frame)
+            detection_image, detected_label = self.run_detection(frame)
             resized_image = cv2.resize(
                 detection_image, (self.vid.width, self.vid.height))
             self.output_photo = PIL.ImageTk.PhotoImage(
@@ -124,6 +136,11 @@ class App:
                 0, 0, image=self.output_photo, anchor=tk.NW)
             cv2.imwrite("frame-" + time.strftime("%d-%m-%Y-%H-%M-%S") +
                         ".jpg", cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+
+            text_entry = self.getText(self.text_holder)
+            if detected_label != -1:
+                self.text_holder.insert(
+                tk.END, self.labels_to_names[detected_label])
 
     def update(self):
         ret, frame = self.vid.get_frame()
@@ -142,18 +159,18 @@ class App:
 
         button_detect_image = tk.Button(
             root, text="Detect Image", command=self.take_snapshot, fg='white', bg='#44475A')
-        button_detect_video = tk.Button(
-            root, text="Detect Video", command=self.detect_video_func, fg='white', bg='#45C264')
+        button_clear_text = tk.Button(
+            root, text="Clear text", command=self.delete_text, fg='white', bg='#45C264')
 
         button_detect_image.config(
             height=3, width=10, font=default_font, padx=4, pady=4)
-        button_detect_video.config(
+        button_clear_text.config(
             height=3, width=10, font=default_font, padx=4, pady=4)
 
         button_detect_image.grid(row=0, column=0)
-        # button_detect_video.grid(row=1, column=0)
+        button_clear_text.grid(row=2, column=0)
 
-        return [button_detect_image, button_detect_video]
+        return [button_detect_image, button_clear_text]
 
 
 if __name__ == '__main__':

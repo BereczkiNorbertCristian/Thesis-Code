@@ -32,6 +32,7 @@ def get_box(img_name):
 
 IMG_NAMES = get_names()
 
+itr = 1
 for _ in range(IMAGES_TO_SHOW):
 
     IMG_NAME = random.choice(IMG_NAMES)
@@ -42,6 +43,8 @@ for _ in range(IMAGES_TO_SHOW):
     draw = image.copy()
     draw = cv2.cvtColor(draw,cv2.COLOR_BGR2RGB)
     
+    itr += 1
+    print(itr)
     print(IMG_NAME)
 
     box_params = get_box(IMG_NAME).astype(int)
