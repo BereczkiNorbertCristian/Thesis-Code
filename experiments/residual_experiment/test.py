@@ -2,6 +2,7 @@ import numpy as np
 import scipy.misc
 import keras.backend as K
 import tensorflow as tf
+import cv2
 
 from keras import layers
 from keras.layers import Input, Add, Dense, Activation, ZeroPadding2D, BatchNormalization, Flatten, Conv2D, AveragePooling2D, MaxPooling2D, GlobalMaxPooling2D
@@ -33,3 +34,13 @@ with tf.Session() as test:
     out = test.run([A], feed_dict={A_prev: X, K.learning_phase(): 0})
     print("out = " + str(out[0].shape))
     print("out_len = " + str(len(out)))
+
+
+model = load_model('resnet32.h5')
+
+img = cv2.imread('raw_dataset/A/a/color_0_0111.png',cv2.IMREAD_COLOR)
+img = cv2.resize(img,(150,150),interpolation=cv2.INTER_LINEAR)
+lst = np.empty((1,150,150,3))
+lst[0] = img
+res = model.predict(lst, verbose=True)
+print(res)
