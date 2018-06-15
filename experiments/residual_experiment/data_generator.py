@@ -45,6 +45,7 @@ class DataGenerator(keras.utils.Sequence):
         img = cv2.imread(image_fname, cv2.IMREAD_COLOR)
         img = cv2.resize(
             img, (self.dim[0], self.dim[1]), interpolation=cv2.INTER_LINEAR)
+        img = img / 255
         return img
 
     def make_fname(self, el):

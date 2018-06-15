@@ -28,7 +28,7 @@ Compatible with tensorflow backend
 # ----------------- CONFIG ------------------------
 
 config = tf.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.5
+config.gpu_options.per_process_gpu_memory_fraction = 0.4
 set_session(tf.Session(config=config))
 
 # ----------------- MAIN --------------------------
@@ -38,7 +38,7 @@ X_train, X_val = get_train_val()
 Y_train, Y_val = get_labels(class_to_id, X_train, X_val)
 
 params = {'dim': (150, 150),
-          'batch_size': 8,
+          'batch_size': 16,
           'n_classes': 24,
           'n_channels': 3,
           'shuffle': True}
