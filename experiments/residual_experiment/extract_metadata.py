@@ -50,7 +50,7 @@ for sign in os.listdir(VAL_SIGN_MAKER_FOLDER):
     SIGN_SUBFOLDER = os.path.join(VAL_SIGN_MAKER_FOLDER, sign)
     signs.append(sign)
     for image_fname in os.listdir(SIGN_SUBFOLDER):
-        val_lst.append((sign_maker, sign, image_fname))
+        val_lst.append(('E', sign, image_fname))
 
 random.shuffle(train_lst)
 random.shuffle(val_lst)

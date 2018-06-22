@@ -1,2 +1,3 @@
 app/models/*
 experiments/experiment\ 2/super_dataset/*
+experiments/residual_experiment/snapshots/*

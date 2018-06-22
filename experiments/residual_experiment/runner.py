@@ -38,7 +38,7 @@ X_train, X_val = get_train_val()
 Y_train, Y_val = get_labels(class_to_id, X_train, X_val)
 
 params = {'dim': (150, 150),
-          'batch_size': 16,
+          'batch_size': 32,
           'n_classes': 24,
           'n_channels': 3,
           'shuffle': True}
@@ -57,7 +57,7 @@ tensorboard_logger = TensorBoard('logs',
                                  histogram_freq=0,
                                  write_graph=False,
                                  write_grads=False,
-                                 batch_size=16,
+                                 batch_size=32,
                                  write_images=False)
 
 callback_list = [lr_reducer, checkpoint_saver, tensorboard_logger]
@@ -82,7 +82,11 @@ hist = model.fit_generator(
     workers=3, epochs=50, verbose=True)
 
 
+with open('history.txt','w') as f:
+    f.write(str(hist))
+
 preds = model.evaluate_generator(
     val_generator, workers=6, use_multiprocessing=True)
 print("Loss = " + str(preds[0]))
 print("Test Accuracy = " + str(preds[1]))
+print("Predictions: " + str(preds))
