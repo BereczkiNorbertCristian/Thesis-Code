@@ -1,2 +1,2 @@
-# Thesis-Code
-Code for my undergrad thesis.
+# Thesis-Code.
+Approach using Deep Learning for Sign Language Recognition.
