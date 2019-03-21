@@ -1,2 +1,2 @@
 # Thesis-Code.
-Approach using Deep Learning for Sign Language Recognition.
+Approach using Deep Learning for Static Sign Language Recognition.
